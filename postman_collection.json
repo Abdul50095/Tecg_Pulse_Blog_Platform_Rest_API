@@ -1,0 +1,452 @@
+{
+  "info": {
+    "name": "The Tech Pulses - Week 4 Blog API",
+    "description": "Blog Platform REST API - Users, Posts, Comments. Run requests top-to-bottom within each folder; several test scripts auto-save IDs (userId, user2Id, postId, postId3, commentId) into collection variables for the next request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "userId", "value": "" },
+    { "key": "user2Id", "value": "" },
+    { "key": "postId", "value": "" },
+    { "key": "postId3", "value": "" },
+    { "key": "commentId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register User 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.collectionVariables.set('userId', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Abdul Rehman\",\n  \"email\": \"abdul@example.com\",\n  \"password\": \"secret123\",\n  \"bio\": \"Web development intern\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] }
+          }
+        },
+        {
+          "name": "Register User 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.collectionVariables.set('user2Id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sara Khan\",\n  \"email\": \"sara@example.com\",\n  \"password\": \"secret123\",\n  \"bio\": \"Frontend enthusiast\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] }
+          }
+        },
+        {
+          "name": "Register - Duplicate Email (expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Someone Else\",\n  \"email\": \"abdul@example.com\",\n  \"password\": \"secret123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] }
+          }
+        },
+        {
+          "name": "Register - Invalid Input (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"abdul@example.com\",\n  \"password\": \"secret123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+          }
+        },
+        {
+          "name": "Login - Wrong Password (expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"abdul@example.com\",\n  \"password\": \"wrongpass\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Get User By ID (published posts populated)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Updated bio text\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Delete User (cascades posts + comments)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create Post 1 (Tech)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.collectionVariables.set('postId', data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Learning the MERN Stack\",\n  \"content\": \"A deep dive into MongoDB, Express, React and Node for building modern web apps.\",\n  \"category\": \"Tech\",\n  \"tags\": [\"javascript\", \"mongodb\"],\n  \"author\": \"{{userId}}\",\n  \"isPublished\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Create Post 2 (Lifestyle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A Day in the Life of an Intern\",\n  \"content\": \"Walking through a typical day balancing internship tasks and personal learning goals.\",\n  \"category\": \"Lifestyle\",\n  \"tags\": [\"internship\"],\n  \"author\": \"{{userId}}\",\n  \"isPublished\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Create Post 3 (Education, unpublished)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.collectionVariables.set('postId3', data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Draft: Study Techniques That Work\",\n  \"content\": \"This post is still a draft and should not appear in the public post listing yet.\",\n  \"category\": \"Education\",\n  \"tags\": [\"study\"],\n  \"author\": \"{{user2Id}}\",\n  \"isPublished\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Create Post - Invalid Input (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"hi\",\n  \"content\": \"short\",\n  \"category\": \"NotARealCategory\",\n  \"author\": \"{{userId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Get Published Posts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Get Posts - Filter by Category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?category=Tech",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "category", "value": "Tech" }]
+            }
+          }
+        },
+        {
+          "name": "Get Posts - Filter by Tag",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?tag=javascript",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "tag", "value": "javascript" }]
+            }
+          }
+        },
+        {
+          "name": "Get Posts - Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?search=intern",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "search", "value": "intern" }]
+            }
+          }
+        },
+        {
+          "name": "Get Posts - Sort Popular",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?sort=popular",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "sort", "value": "popular" }]
+            }
+          }
+        },
+        {
+          "name": "Get Posts - Sort Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?sort=latest",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "sort", "value": "latest" }]
+            }
+          }
+        },
+        {
+          "name": "Get All Posts (incl. unpublished - admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/all", "host": ["{{baseUrl}}"], "path": ["posts", "all"] }
+          }
+        },
+        {
+          "name": "Get Post By ID (author + comments populated)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId}}"] }
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Learning the MERN Stack (Updated)\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId}}"] }
+          }
+        },
+        {
+          "name": "Like Post",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/like", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId}}", "like"] }
+          }
+        },
+        {
+          "name": "Toggle Publish (Post 3)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId3}}/publish", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId3}}", "publish"] }
+          }
+        },
+        {
+          "name": "Delete Post (cascades comments)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Add Comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.collectionVariables.set('commentId', data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Great post, very helpful!\",\n  \"author\": \"{{user2Id}}\",\n  \"post\": \"{{postId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/comments", "host": ["{{baseUrl}}"], "path": ["comments"] }
+          }
+        },
+        {
+          "name": "Add Comment - Invalid Input (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"x\",\n  \"author\": \"{{user2Id}}\",\n  \"post\": \"{{postId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/comments", "host": ["{{baseUrl}}"], "path": ["comments"] }
+          }
+        },
+        {
+          "name": "Get Comments For Post",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/comments/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "post", "{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Updated: great post, super helpful!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/comments/{{commentId}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{commentId}}"] }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/comments/{{commentId}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{commentId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "404 - Unknown Route",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/nonexistent-route", "host": ["{{baseUrl}}"], "path": ["nonexistent-route"] }
+          }
+        },
+        {
+          "name": "400 - Invalid ObjectId (CastError)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/not-a-valid-id", "host": ["{{baseUrl}}"], "path": ["posts", "not-a-valid-id"] }
+          }
+        }
+      ]
+    }
+  ]
+}
